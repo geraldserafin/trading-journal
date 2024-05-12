@@ -23,6 +23,7 @@
             nodejs_22
             nodePackages.pnpm
             nodePackages.typescript-language-server
+            nodePackages.prettier
           ];
           shellHook = ''
             export PGDATA=$PWD/.postgres/data
