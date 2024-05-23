@@ -1,13 +1,13 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "@/lib/schema/users";
+import { usersTable } from "./users";
 
-export const sessions = pgTable("sessions", {
+export const sessionsTable = pgTable("session", {
   id: text("id").primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id),
   expiresAt: timestamp("expires_at", {
     withTimezone: true,
     mode: "date",
   }).notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => usersTable.id),
 });
