@@ -9,7 +9,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         pg-up = pkgs.writeShellScriptBin "pg:start" ''
-          pg_ctl start -l $LOG_PATH -o "-c listen_addresses= -c unix_socket_directories=$PGHOST"
+          pg_ctl start -l $LOG_PATH -o "-c listen_addresses='localhost' -c unix_socket_directories=$PGHOST"
         '';
         pg-down = pkgs.writeShellScriptBin "pg:stop" ''
           pg_ctl -D $PGDATA stop
