@@ -1,10 +1,12 @@
 import { sessionsTable } from "@/models/session";
 import { usersTable } from "@/models/users";
-import { Lucia } from "lucia";
-import { db } from "./db";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
+import { Lucia, Session, User } from "lucia";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
+import { db } from "./db";
+
 const adapter = new DrizzlePostgreSQLAdapter(db, sessionsTable, usersTable);
 
 export const lucia = new Lucia(adapter, {
@@ -14,54 +16,80 @@ export const lucia = new Lucia(adapter, {
       secure: process.env.NODE_ENV === "production",
     },
   },
-  getUserAttributes: (attributes) => {
-    return {
-      email: attributes.email,
-    };
-  },
+  getUserAttributes: ({ email, emailVerified, twoFactorEnabled }) => ({
+    email,
+    emailVerified,
+    twoFactorEnabled,
+  }),
+  getSessionAttributes: ({ pending }) => ({
+    pending,
+  }),
 });
 
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
     DatabaseUserAttributes: {
+      emailVerified: boolean;
       email: string;
+      twoFactorEnabled: boolean;
+    };
+    DatabaseSessionAttributes: {
+      pending: boolean;
     };
   }
 }
 
-export const getUser = cache(async () => {
-  const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+type AuthorizeRequestProps<T> = {
+  onUnauthorized?: () => T;
+  onUnverified?: (props: { user: User; session: Session }) => T;
+  onSessionPending?: (props: { user: User; session: Session }) => T;
+};
 
-  if (!sessionId) {
-    return null;
-  }
+type AuthorizeRequestResult<T> = { user: User; session: Session } | T;
 
-  const { user, session } = await lucia.validateSession(sessionId);
+export const authorizeRequest = cache(
+  async <T = never>(
+    props?: AuthorizeRequestProps<T> | undefined,
+  ): Promise<AuthorizeRequestResult<T>> => {
+    const onUnauthorized = props?.onUnauthorized ?? (() => redirect("/login"));
+    const onSessionPending = props?.onSessionPending ?? (() => redirect("/2fa"));
+    const onUnverified = props?.onUnverified ?? (() => redirect("/verify-email"));
 
-  try {
-    if (session && session.fresh) {
-      const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
 
-      cookies().set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      );
+    if (!sessionId) {
+      return onUnauthorized();
     }
+
+    const { session, user } = await lucia.validateSession(sessionId);
 
     if (!session) {
       const sessionCookie = lucia.createBlankSessionCookie();
 
-      cookies().set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      );
-    }
-  } catch {
-    // Next.js throws error when attempting to set cookies when rendering page
-  }
+      try {
+        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+      } catch {}
 
-  return user;
-});
+      return onUnauthorized();
+    }
+
+    if (session.fresh) {
+      const sessionCookie = lucia.createSessionCookie(session.id);
+
+      try {
+        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+      } catch {}
+    }
+
+    if (!user.emailVerified) {
+      return onUnverified({ user, session });
+    }
+
+    if (session.pending) {
+      return onSessionPending({ user, session });
+    }
+
+    return { user, session };
+  },
+);

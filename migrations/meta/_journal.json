@@ -8,6 +8,41 @@
       "when": 1716450830006,
       "tag": "0000_puzzling_king_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1716461485187,
+      "tag": "0001_watery_scarlet_witch",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1716556869848,
+      "tag": "0002_thin_stephen_strange",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1716655171445,
+      "tag": "0003_wakeful_loners",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1716831972482,
+      "tag": "0004_regular_earthquake",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1716832081019,
+      "tag": "0005_old_lightspeed",
+      "breakpoints": true
     }
   ]
 }

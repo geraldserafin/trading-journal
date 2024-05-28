@@ -1,11 +1,13 @@
-import { getUser } from "@/lib/auth";
+import { LogoutButton } from "@/domain/auth/ui/logout-button";
+import { authorizeRequest } from "@/lib/auth";
 
 export default async function Home() {
-  const user = await getUser();
+  const { user } = await authorizeRequest();
 
-  if (!user) {
-    return <h1>You are not logged in</h1>;
-  }
-
-  return <h1>{user.email}</h1>;
+  return (
+    <>
+      <h1>{user.email}</h1>
+      <LogoutButton />
+    </>
+  );
 }
