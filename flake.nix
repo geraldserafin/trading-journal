@@ -24,6 +24,11 @@
             nodePackages.pnpm
             nodePackages.typescript-language-server
             nodePackages.prettier
+            nodePackages.tailwindcss
+            nodePackages.eslint
+            emmet-ls
+            tailwindcss-language-server
+
           ];
           shellHook = ''
             export PGDATA=$PWD/.postgres/data
