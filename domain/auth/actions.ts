@@ -105,7 +105,7 @@ export const logout = action({
 
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
-    return redirect("/login");
+    return redirect("/auth/login");
   },
 });
 
@@ -226,7 +226,7 @@ export const validateTOTP = action({
     const { twoFactorSecret } = (await users().getFirstBy({ id: user.id }))!;
 
     if (!twoFactorSecret) {
-      redirect("/enable-2fa");
+      redirect("/auth/2fa/enable");
     }
 
     const validOTP = await new TOTPController().verify(totp, decodeHex(twoFactorSecret!));

@@ -52,9 +52,9 @@ export const authorizeRequest = cache(
   async <T = never>(
     props?: AuthorizeRequestProps<T> | undefined,
   ): Promise<AuthorizeRequestResult<T>> => {
-    const onUnauthorized = props?.onUnauthorized ?? (() => redirect("/login"));
-    const onSessionPending = props?.onSessionPending ?? (() => redirect("/2fa"));
-    const onUnverified = props?.onUnverified ?? (() => redirect("/verify-email"));
+    const onUnauthorized = props?.onUnauthorized ?? (() => redirect("/auth/login"));
+    const onSessionPending = props?.onSessionPending ?? (() => redirect("/auth/2fa/verify"));
+    const onUnverified = props?.onUnverified ?? (() => redirect("/auth/verify-email"));
 
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
 
