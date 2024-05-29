@@ -57,7 +57,7 @@ export default function LoginForm() {
               <FormItem>
                 <div className="flex items-center">
                   <FormLabel>Password</FormLabel>
-                  <Link href="/reset-password" className="ml-auto inline-block text-sm underline">
+                  <Link href="/auth/reset-password" className="ml-auto inline-block text-sm underline">
                     Forgot your password?
                   </Link>
                 </div>
@@ -76,7 +76,7 @@ export default function LoginForm() {
       </Form>
       <div className="mt-4 text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="underline">
+        <Link href="/auth/register" className="underline">
           Sign up
         </Link>
       </div>
