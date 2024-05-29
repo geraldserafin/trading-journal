@@ -5,11 +5,7 @@ import { useAction } from "next-safe-action/hooks";
 import { logout } from "../actions";
 
 export function LogoutButton(props: ButtonProps) {
-  const { execute, status } = useAction(logout, {
-    onError: (e) => {
-      console.log(e);
-    },
-  });
+  const { execute, status } = useAction(logout);
 
   return (
     <form action={execute}>

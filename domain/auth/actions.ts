@@ -2,10 +2,7 @@
 
 import { authorizeRequest, lucia } from "@/lib/auth";
 import { ActionError, action } from "@/lib/safe-actions";
-import { emailVerificationCodes } from "@/models/emailVerificationCodes";
-import { passwordResetTokens } from "@/models/passwordResetTokens";
-import { sessions } from "@/models/session";
-import { users } from "@/models/users";
+import { emailVerificationCodes, passwordResetTokens, sessions, users } from "@/models";
 import { Ratelimit } from "@upstash/ratelimit";
 import { hash, verify } from "argon2";
 import { generateIdFromEntropySize } from "lucia";
