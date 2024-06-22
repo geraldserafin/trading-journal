@@ -11,7 +11,7 @@ export const sessionsTable = pgTable("sessions", {
   }).notNull(),
   userId: uuid("user_id")
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
   pending: boolean("pending").default(false),
 });
 

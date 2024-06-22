@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { login } from "../actions";
 import { loginSchema } from "../schemas";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 export default function LoginForm() {
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -72,6 +73,7 @@ export default function LoginForm() {
           <Button disabled={status === "executing"} type="submit" className="w-full">
             Login
           </Button>
+          <GoogleSignInButton />
         </form>
       </Form>
       <div className="mt-4 text-center text-sm">
