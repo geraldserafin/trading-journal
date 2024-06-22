@@ -12,7 +12,7 @@ export const passwordResetTokensTable = pgTable("password_reset_tokens", {
   }).notNull(),
   userId: uuid("user_id")
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: "cascade" }),
 });
 
 type InsertPasswordResetToken = typeof passwordResetTokensTable.$inferInsert;

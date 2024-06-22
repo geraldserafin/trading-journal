@@ -1,6 +1,7 @@
 "use server";
 
 import { authorizeRequest, lucia } from "@/lib/auth";
+import { sendEmail } from "@/lib/emails";
 import { ActionError, action } from "@/lib/safe-actions";
 import { emailVerificationCodes, passwordResetTokens, sessions, users } from "@/models";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -29,9 +30,9 @@ async function createAndSetSession(userId: string, pending: boolean = false) {
 }
 
 async function createAndSendEmailVerificationCode(userId: string, email: string) {
-  await emailVerificationCodes().create(userId, email);
+  const code = await emailVerificationCodes().create(userId, email);
 
-  // TODO(g): Send the verification code via an SMTP service
+  await sendEmail("Confirm your email", `${code}`, { email });
 }
 
 async function getPasswordHash(password: string) {
@@ -51,6 +52,7 @@ export const register = action({
     const createUserResult = await users().create({
       email,
       passwordHash,
+      provider: "email",
     });
 
     if (!createUserResult.success) {
@@ -70,7 +72,7 @@ export const login = action({
   validation: loginSchema,
   rateLimit: Ratelimit.tokenBucket(5, "2s", 1),
   serverCode: async ({ email, password }) => {
-    const user = await users().getFirstBy({ email });
+    const user = await users().getFirstWhere({ email: email });
 
     if (!user?.passwordHash) {
       // TODO(g): Internalize
@@ -114,8 +116,8 @@ export const verifyEmailCode = action({
       onUnauthorized() {
         throw new ActionError("Unauthorized");
       },
-      onUnverified: () => {},
-      onSessionPending: () => {},
+      onUnverified: () => { },
+      onSessionPending: () => { },
     });
 
     const user = await emailVerificationCodes().verify(code);
@@ -155,7 +157,7 @@ export const requestPasswordReset = action({
   validation: requestPasswordResetSchema,
   rateLimit: Ratelimit.slidingWindow(4, "1h"),
   serverCode: async ({ email }) => {
-    const user = await users().getFirstBy({ email });
+    const user = await users().getFirstWhere({ email });
 
     if (!user || !user.emailVerified) {
       throw new ActionError("Invalid email");
@@ -164,14 +166,17 @@ export const requestPasswordReset = action({
     const tokenId = generateIdFromEntropySize(25);
     const tokenHash = encodeHex(await sha256(new TextEncoder().encode(tokenId)));
 
-    const verificationToken = await passwordResetTokens().create({
+    await passwordResetTokens().create({
       userId: user.id,
       tokenHash,
     });
 
-    console.debug(tokenId);
-
     // TODO(g): send a link with verification token via SMTP service
+    await sendEmail(
+      "Confirm your email",
+      `<a href="${process.env.APP_URL!}/auth/reset-password/${tokenId}">Password reset link</a>`,
+      { email },
+    );
   },
 });
 
@@ -220,7 +225,7 @@ export const validateTOTP = action({
       onSessionPending: (data) => data,
     });
 
-    const { twoFactorSecret } = (await users().getFirstBy({ id: user.id }))!;
+    const { twoFactorSecret } = (await users().getFirstWhere({ id: user.id }))!;
 
     if (!twoFactorSecret) {
       redirect("/auth/2fa/enable");
