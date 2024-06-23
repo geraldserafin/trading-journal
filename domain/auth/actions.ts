@@ -174,7 +174,7 @@ export const requestPasswordReset = action({
     // TODO(g): send a link with verification token via SMTP service
     await sendEmail(
       "Confirm your email",
-      `<a href="${process.env.APP_URL!}/auth/reset-password/${tokenId}">Password reset link</a>`,
+      `<a href="${process.env.VERCEL_URL!}/auth/reset-password/${tokenId}">Password reset link</a>`,
       { email },
     );
   },
