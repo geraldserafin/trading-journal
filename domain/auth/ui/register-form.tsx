@@ -59,7 +59,7 @@ export default function RegisterForm() {
               <FormItem>
                 <div className="flex items-center">
                   <FormLabel>Password</FormLabel>
-                  <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
+                  <Link href="/auth/reset-password" className="ml-auto inline-block text-sm underline">
                     Forgot your password?
                   </Link>
                 </div>
