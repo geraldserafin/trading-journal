@@ -28,7 +28,8 @@
             nodePackages.eslint
             emmet-ls
             tailwindcss-language-server
-
+            docker_26
+            act
           ];
           shellHook = ''
             export PGDATA=$PWD/.postgres/data
